@@ -1,0 +1,46 @@
+{
+	"name": "Python-app & PostgreSQL",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"mounts": [
+		{
+			"type": "volume",
+			"source": "poetry-cache",
+			"target": "/home/vscode/.cache/pypoetry"
+		},
+		{
+			"type": "volume",
+			"source": "venv-cache",
+			"target": "${containerWorkspaceFolder}/.venv"
+		}
+	],
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"postAttachCommand": "sudo chown -R vscode:vscode /home/vscode/.cache/pypoetry ${containerWorkspaceFolder}/.venv && poetry config virtualenvs.in-project true && poetry install",
+	"remoteUser": "vscode",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "/workspaces/${localWorkspaceFolderBasename}/.venv/bin/python",
+				"git.openRepositoryInParentFolders": "always",
+				"python.linting.enabled": true,
+				"python.linting.ruffEnabled": true,
+				"python.formatting.provider": "black",
+				"editor.formatOnSave": true
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"streetsidesoftware.code-spell-checker",
+				"charliermarsh.ruff",
+				"tamasfe.even-better-toml",
+				"ms-azuretools.vscode-docker",
+				"github.vscode-pull-request-github",
+				"GitHub.copilot",
+				"eamodio.gitlens"
+			]
+		}
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2.12.0": {}
+	}
+}

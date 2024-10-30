@@ -8,6 +8,7 @@ from src.schemas import HabitCreate, HabitResponse, HabitProgressResponse
 from src.database import get_db  # データベース接続セッションを取得するた
 from datetime import datetime, date
 from litellm import completion
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -34,7 +35,7 @@ class SignUpRequest(BaseModel):
 
 
 @app.post("/signup")
-def sign_up(sign_up_request: SignUpRequest):
+async def sign_up(sign_up_request: SignUpRequest):
     try:
         auth_response = supabase.auth.sign_up({
             "email": sign_up_request.email,
@@ -58,7 +59,7 @@ class User(BaseModel):
 
 
 @app.post("/login")
-def login(user: User, response: Response):
+async def login(user: User, response: Response):
     try:
         auth_response = supabase.auth.sign_in_with_password({
             "email": user.email,
@@ -90,12 +91,12 @@ def login(user: User, response: Response):
 
 
 @app.post("/logout")
-def logout(response: Response):
+async def logout(response: Response):
     response.delete_cookie("access_token")
     return {"message": "ログアウトしました。"}
 
 
-def get_success_message(habit: HabitResponse, progress: HabitProgressResponse):
+async def get_success_message(habit: HabitResponse, progress: HabitProgressResponse):
     assert habit.id == progress.habit_id
     assert progress.is_checked is True
     habit_name = habit.name
@@ -106,7 +107,7 @@ def get_success_message(habit: HabitResponse, progress: HabitProgressResponse):
     return message.choices[0].message.content
 
 
-def make_habit_progeress(new_habit: HabitResponse, db: Session):
+async def make_habit_progeress(new_habit: HabitResponse, db: Session):
     progress = db.query(HabitProgress).filter(
         HabitProgress.habit_id == new_habit.id, HabitProgress.date == date.today()).first()
     if progress:
@@ -121,7 +122,7 @@ def make_habit_progeress(new_habit: HabitResponse, db: Session):
     return new_progress
 
 
-def get_current_user(access_token: str | None = Cookie(default=None), refresh_token: str | None = Cookie(default=None)):
+async def get_current_user(access_token: str | None = Cookie(default=None), refresh_token: str | None = Cookie(default=None)):
     auth_response = supabase.auth.set_session(access_token, refresh_token)
     access_token = auth_response.session.access_token
     if not access_token:
@@ -133,7 +134,7 @@ def get_current_user(access_token: str | None = Cookie(default=None), refresh_to
     return user_response.user
 
 
-def get_token_from_cookie(access_token: str | None = Cookie(default=None), refresh_token: str | None = Cookie(default=None)):
+async def get_token_from_cookie(access_token: str | None = Cookie(default=None), refresh_token: str | None = Cookie(default=None)):
     auth_response = supabase.auth.set_session(access_token, refresh_token)
     access_token = auth_response.session.access_token
     if (access_token is None):
@@ -146,7 +147,7 @@ def get_token_from_cookie(access_token: str | None = Cookie(default=None), refre
 
 
 @app.get("/profile")
-def read_profile(jwt=Depends(get_token_from_cookie)):
+async def read_profile(jwt=Depends(get_token_from_cookie)):
     try:
         user_response = supabase.auth.get_user(jwt)
     except Exception as e:
@@ -185,7 +186,7 @@ async def create_habit(habit_data: HabitCreate, request: Request, background_tas
 
 
 @app.get("/habits/active")
-def get_active_habit(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+async def get_active_habit(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     habit = db.query(Habit).filter(Habit.user_id == user.id,
                                    Habit.is_active == True).first()
     if not habit:
@@ -195,7 +196,7 @@ def get_active_habit(db: Session = Depends(get_db), user: User = Depends(get_cur
 
 
 @app.get("/habits/active/progress")
-def get_habit_progress(db: Session = Depends(get_db), user=Depends(get_current_user)):
+async def get_habit_progress(db: Session = Depends(get_db), user=Depends(get_current_user)):
     # ユーザーのアクティブな習慣を取得
     habit = db.query(Habit).filter(Habit.user_id == user.id,
                                    Habit.is_active == True).first()
@@ -217,7 +218,7 @@ def get_habit_progress(db: Session = Depends(get_db), user=Depends(get_current_u
 
 
 @app.post("/habits/active/progress")
-def check_progress(db: Session = Depends(get_db), user=Depends(get_current_user)):
+async def check_progress(db: Session = Depends(get_db), user=Depends(get_current_user)):
     # ユーザーのアクティブな習慣を取得
     habit = db.query(Habit).filter(Habit.user_id == user.id,
                                    Habit.is_active == True).first()
@@ -253,3 +254,6 @@ class MessageRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+handler = Mangum(app)

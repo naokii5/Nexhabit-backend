@@ -5,4 +5,4 @@ COPY src/*.py requirements.txt ./
 
 RUN pip install -r ./requirements.txt
 
-# CMD ["src.main.handler"]
+CMD ["main.handler"]

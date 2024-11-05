@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException, Response, Request, Depends, Cookie, BackgroundTasks
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from src.config import origins, supabase
+from config import origins, supabase
 from sqlalchemy.orm import Session
-from src.models import Habit, HabitProgress
-from src.schemas import HabitCreate, HabitResponse, HabitProgressResponse
-from src.database import get_db  # データベース接続セッションを取得するた
+from models import Habit, HabitProgress
+from schemas import HabitCreate, HabitResponse, HabitProgressResponse
+from database import get_db  # データベース接続セッションを取得するた
 from datetime import datetime, date
 from litellm import completion
 from mangum import Mangum
@@ -256,4 +256,4 @@ class MessageResponse(BaseModel):
     message: str
 
 
-handler = Mangum(app)
+handler = Mangum(app, lifespan="off")

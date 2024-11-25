@@ -1,16 +1,16 @@
 from fastapi import APIRouter, HTTPException, Request, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
-from models import Habit, HabitProgress, User
+from models import Habit, HabitProgress
 from schemas import HabitCreate, HabitResponse
 from database import get_db
 from datetime import datetime, date
-from dependencies import get_current_user, make_habit_progeress, get_success_message
+from routers.dependencies import get_current_user, make_habit_progress
 
 router = APIRouter()
 
 
 @router.post("/habits/create", response_model=HabitResponse)
-async def create_habit(habit_data: HabitCreate, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+async def create_habit(habit_data: HabitCreate, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db), user=Depends(get_current_user)):
     if not user:
         raise HTTPException(status_code=401, detail="ユーザー情報が取得できません")
 
@@ -28,13 +28,13 @@ async def create_habit(habit_data: HabitCreate, request: Request, background_tas
     db.commit()
     db.refresh(new_habit)
 
-    background_tasks.add_task(make_habit_progeress, new_habit, db)
+    background_tasks.add_task(make_habit_progress, new_habit, db)
 
     return new_habit
 
 
 @router.get("/habits/active")
-async def get_active_habit(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+async def get_active_habit(db: Session = Depends(get_db), user=Depends(get_current_user)):
     habit = db.query(Habit).filter(Habit.user_id == user.id,
                                    Habit.is_active == True).first()
     if not habit:
@@ -84,9 +84,7 @@ async def check_progress(db: Session = Depends(get_db), user=Depends(get_current
         return {"message": "今日の進捗が更新されました", "progress": progress}
 
     # 新しい進捗を作成
-    new_progress = HabitProgress(
-        habit_id=habit.id, date=date.today(), is_checked=True)
-    new_progress.success_message = get_success_message(habit, new_progress)
+    new_progress = make_habit_progress(habit, db)
     db.add(new_progress)
     db.commit()
 

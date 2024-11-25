@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Depends
 from config import supabase
 from schemas import SignUpRequest, User
-from dependencies import get_token_from_cookie
+from routers.dependencies import get_token_from_cookie
 router = APIRouter()
 
 

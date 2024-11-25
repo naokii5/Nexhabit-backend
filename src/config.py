@@ -1,6 +1,8 @@
 import os
 from supabase import create_client, Client
 from supabase.client import ClientOptions
+import google.generativeai as genai
+
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
@@ -16,3 +18,8 @@ supabase: Client = create_client(url, key,
 
 # CORSの設定（フロントエンドからのリクエストを許可）
 origins = [frontend_url]
+
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+gemini = genai.GenerativeModel("gemini-1.5-flash")

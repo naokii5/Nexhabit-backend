@@ -2,12 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import origins
 from routers import auth, habits
-from database import engine
-import models
 
 app = FastAPI()
-
-models.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/ping")
@@ -24,5 +20,5 @@ app.add_middleware(
 )
 
 
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(auth.router, tags=["auth"])
 app.include_router(habits.router, tags=["habits"])

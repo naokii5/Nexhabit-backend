@@ -42,8 +42,6 @@ async def generate_messages_with_gemini(habit_name, date):
 
     return success_message, failure_message
 
-    return success_message, failure_message
-
 
 async def make_habit_progress(habit, db: Session):
     # 今日の日付を取得

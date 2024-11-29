@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 import os
 from sqlalchemy.pool import NullPool
 from dotenv import load_dotenv
@@ -15,6 +16,7 @@ DATABASE_URL = f"postgresql+psycopg2://{
     user}:{password}@{host}:{port}/{dbname}"
 
 engine = create_engine(DATABASE_URL, poolclass=NullPool)
+Base = declarative_base()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

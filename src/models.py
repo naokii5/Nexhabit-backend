@@ -3,9 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Index, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from database import Base
 
 
 class Habit(Base):

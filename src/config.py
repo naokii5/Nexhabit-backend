@@ -17,7 +17,10 @@ supabase: Client = create_client(url, key,
                                  ))
 
 # CORSの設定（フロントエンドからのリクエストを許可）
-origins = [frontend_url]
+origins = [
+    "http://localhost:5174",  # フロントエンドのURL
+    "http://127.0.0.1:5174",  # 必要なら他のオリジンも追加
+]
 
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")

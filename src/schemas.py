@@ -32,3 +32,27 @@ class HabitProgressResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SignUpRequest(BaseModel):
+    email: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class User(BaseModel):
+    email: str
+    password: str
+
+
+class MessageRequest(BaseModel):
+    habit: HabitResponse
+    progress: HabitProgressResponse
+
+
+class MessageResponse(BaseModel):
+    message: str

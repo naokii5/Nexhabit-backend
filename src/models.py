@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Index, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base  # 既存のBaseクラス
+from database import Base
 
 
 class Habit(Base):

@@ -13,7 +13,6 @@ async def sign_up(sign_up_request: SignUpRequest):
             "password": sign_up_request.password
         })
     except Exception as e:
-        print(auth_response)
         raise HTTPException(status_code=400, detail=str(e))
 
     return {"message": "Sign-up successful. Please check your email for verification."}
